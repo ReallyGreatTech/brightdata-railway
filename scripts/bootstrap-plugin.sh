@@ -49,17 +49,26 @@ rm -rf "$STATE_DIR/extensions/.openclaw-install-stage-"*
 
 # Check if we have a baked version in the image (faster than downloading)
 if [ -d "/tmp/.openclaw/extensions/brightdata" ]; then
-  echo "[brightdata-bootstrap] Found baked plugin. Injecting files directly..."
-  mkdir -p "$STATE_DIR/extensions"
-  
-  # Copy the entire pre-installed plugin folder (including node_modules)
-  cp -rp "/tmp/.openclaw/extensions/brightdata" "$STATE_DIR/extensions/"
-  
+  echo "[brightdata-bootstrap] Found baked plugin. Copying essential files only (not node_modules)..."
+  # We copy only the 3 files OpenClaw needs. node_modules is symlinked back to the
+  # baked image path so externalized deps resolve without consuming volume space.
+  # The full plugin tree is ~500MB; Railway free volumes are only 512MB.
+  PLUGIN_SRC="/tmp/.openclaw/extensions/brightdata"
+  PLUGIN_DEST="$STATE_DIR/extensions/brightdata"
+  mkdir -p "$PLUGIN_DEST/dist"
+
+  cp "$PLUGIN_SRC/dist/index.js"        "$PLUGIN_DEST/dist/index.js"
+  cp "$PLUGIN_SRC/package.json"         "$PLUGIN_DEST/package.json"
+  cp "$PLUGIN_SRC/openclaw.plugin.json" "$PLUGIN_DEST/openclaw.plugin.json"
+
+  # Symlink node_modules from the baked image — available for the container's lifetime
+  ln -sf "$PLUGIN_SRC/node_modules" "$PLUGIN_DEST/node_modules"
+
   # Point package.json main/extensions to the CJS bundle (not the raw .ts source)
   echo "[brightdata-bootstrap] Updating package.json entry point to dist/index.js..."
   python3 -c "
 import json
-p = '$STATE_DIR/extensions/brightdata/package.json'
+p = '$PLUGIN_DEST/package.json'
 with open(p) as f:
     pkg = json.load(f)
 pkg['main'] = 'dist/index.js'
@@ -73,15 +82,14 @@ print('Updated package.json main -> dist/index.js')
   # Register it manually via config to bypass the stuck 'npm install'
   echo "[brightdata-bootstrap] Registering plugin in config..."
   openclaw config set plugins.entries.brightdata.enabled true
-  
-  # We also need to copy the pre-generated openclaw.json if it exists 
-  # as it contains the correct registration metadata
+
+  # Copy pre-generated openclaw.json (gateway registration metadata)
   if [ -f "/tmp/.openclaw/openclaw.json" ] && [ ! -f "$STATE_DIR/openclaw.json" ]; then
     cp "/tmp/.openclaw/openclaw.json" "$STATE_DIR/openclaw.json"
   fi
 else
   echo "[brightdata-bootstrap] Baked plugin not found. Downloading @brightdata/brightdata-plugin..."
-  # Fallback (slow)
+  # Fallback (slow) — no volume space concern since openclaw manages the install
   openclaw plugins install @brightdata/brightdata-plugin \
     --dangerously-force-unsafe-install
 fi
