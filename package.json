@@ -1,0 +1,19 @@
+{
+  "name": "openclaw-brightdata-railway",
+  "version": "1.0.0",
+  "description": "OpenClaw on Railway with Bright Data web-unblocking pre-configured",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "http-proxy": "^1.18.1",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

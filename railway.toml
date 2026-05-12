@@ -1,0 +1,50 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+healthcheckPath = "/setup/healthz"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+# A persistent volume MUST be mounted at /data.
+# Without it, all OpenClaw state (config, credentials, plugin state) is lost
+# on every redeploy.
+requiredMountPath = "/data"
+
+[variables]
+# ── OpenClaw core ─────────────────────────────────────────────────────────────
+# Railway injects PORT automatically. Do NOT hardcode it here.
+OPENCLAW_STATE_DIR     = "/data/.openclaw"
+OPENCLAW_WORKSPACE_DIR = "/data/workspace"
+
+# ── Setup wizard ──────────────────────────────────────────────────────────────
+# Password for the /setup status page. Change this before deploying.
+SETUP_PASSWORD = "changeme"
+
+# ── Bright Data plugin ────────────────────────────────────────────────────────
+# REQUIRED: Your Bright Data API key.
+# Get it from: https://brightdata.com/cp/setting/users → Generate API key
+# The plugin will not start without this.
+BRIGHTDATA_API_TOKEN = ""
+
+# OPTIONAL: Proxy zone names. Leave blank to let the plugin create them
+# automatically on first use. Set these only if you want to use existing zones.
+BRIGHTDATA_UNLOCKER_ZONE = "mcp_unlocker"
+BRIGHTDATA_BROWSER_ZONE  = "mcp_browser"
+
+# OPTIONAL: Set Bright Data as the default web search provider for your agent.
+# When set to "true", all generic web searches route through Bright Data.
+BRIGHTDATA_AS_DEFAULT_SEARCH = "false"
+
+# ── AI provider (choose one) ──────────────────────────────────────────────────
+# RECOMMENDED (free): OpenRouter gives 262K context with Nemotron — no TPM limits.
+# Get a free key at: https://openrouter.ai/keys
+OPENROUTER_API_KEY = ""
+
+# Alternatively, set one of these for a paid provider (leave all blank to use OpenRouter):
+OPENAI_API_KEY     = ""
+ANTHROPIC_API_KEY  = ""
+GEMINI_API_KEY     = ""
+# Note: Groq free tier (12K TPM) is too small for the 66-tool plugin manifest.
+# Only use Groq with a paid account or expect 413 errors on every request.
+GROQ_API_KEY       = ""
