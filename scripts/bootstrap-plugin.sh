@@ -26,6 +26,15 @@ if [ -d "$SESSION_DIR" ]; then
   fi
 fi
 
+# ── Control UI allowed origins — runs on every boot ──────────────────────────
+# The OpenClaw gateway blocks cross-origin requests by default. When deployed on
+# Railway the Control UI is served from a different origin than the gateway, so
+# we must whitelist the Railway public domain on every boot (env var can change).
+if [ -n "${RAILWAY_PUBLIC_DOMAIN:-}" ]; then
+  echo "[brightdata-bootstrap] Setting allowed origin: https://${RAILWAY_PUBLIC_DOMAIN}"
+  openclaw config set gateway.controlUi.allowedOrigins "[\"https://${RAILWAY_PUBLIC_DOMAIN}\"]"
+fi
+
 # ── Already done — skip ───────────────────────────────────────────────────────
 if [ -f "$SENTINEL" ]; then
   echo "[brightdata-bootstrap] Plugin already configured — skipping."
