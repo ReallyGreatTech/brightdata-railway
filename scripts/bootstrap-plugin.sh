@@ -26,14 +26,22 @@ if [ -d "$SESSION_DIR" ]; then
   fi
 fi
 
-# ── Control UI allowed origins — runs on every boot ──────────────────────────
-# The OpenClaw gateway blocks cross-origin requests by default. When deployed on
-# Railway the Control UI is served from a different origin than the gateway, so
-# we must whitelist the Railway public domain on every boot (env var can change).
+# ── Control UI gateway config — runs on every boot ───────────────────────────
+# These two settings fix cross-origin and device-pairing blockers on Railway.
+# They must re-run on every boot because RAILWAY_PUBLIC_DOMAIN can change and
+# the sentinel file would otherwise skip them on subsequent deploys.
+
+# 1. Whitelist the Railway public domain so WebSocket connections are accepted.
 if [ -n "${RAILWAY_PUBLIC_DOMAIN:-}" ]; then
   echo "[brightdata-bootstrap] Setting allowed origin: https://${RAILWAY_PUBLIC_DOMAIN}"
   openclaw config set gateway.controlUi.allowedOrigins "[\"https://${RAILWAY_PUBLIC_DOMAIN}\"]"
 fi
+
+# 2. Disable device-pairing requirement for the Control UI.
+#    Without this users see "device pairing required" after entering their token.
+#    The gateway token (visible at /setup) remains the authentication mechanism.
+echo "[brightdata-bootstrap] Disabling Control UI device pairing requirement..."
+openclaw config set gateway.controlUi.dangerouslyDisableDeviceAuth true
 
 # ── Already done — skip ───────────────────────────────────────────────────────
 if [ -f "$SENTINEL" ]; then
