@@ -43,6 +43,12 @@ fi
 echo "[brightdata-bootstrap] Disabling Control UI device pairing requirement..."
 openclaw config set gateway.controlUi.dangerouslyDisableDeviceAuth true
 
+# 3. Trust localhost so Railway's reverse-proxy headers are accepted.
+#    Without this the gateway logs "Proxy headers detected from untrusted address"
+#    and rejects connections that originate through Railway's load balancer.
+echo "[brightdata-bootstrap] Setting trusted proxies..."
+openclaw config set gateway.trustedProxies '["127.0.0.1"]'
+
 # ── Already done — skip ───────────────────────────────────────────────────────
 if [ -f "$SENTINEL" ]; then
   echo "[brightdata-bootstrap] Plugin already configured — skipping."
@@ -249,6 +255,15 @@ else
   echo "[brightdata-bootstrap] WARNING: No AI provider key found."
   echo "[brightdata-bootstrap] Set GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, GROQ_API_KEY, or OPENROUTER_API_KEY."
 fi
+
+# ── Generate and persist a fixed gateway auth token ──────────────────────────
+# The gateway generates a random in-memory token each boot if none is configured,
+# which means server.js can never find it in openclaw.json. Setting it here once
+# writes the value to openclaw.json so it survives restarts and appears on /setup.
+echo "[brightdata-bootstrap] Generating persistent gateway auth token..."
+openclaw config set gateway.auth.mode token
+openclaw config set gateway.auth.token "$(openssl rand -hex 32)"
+echo "[brightdata-bootstrap] Gateway auth token saved to openclaw.json."
 
 # ── Write sentinel so we skip on next boot ────────────────────────────────────
 mkdir -p "$STATE_DIR"
