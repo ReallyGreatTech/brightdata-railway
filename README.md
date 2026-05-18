@@ -2,8 +2,7 @@
 
 > Deploy OpenClaw on Railway with **66 Bright Data web tools built in**. One click. No manual plugin setup. No getting blocked.
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template)
-
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/mkYabD?...)
 ---
 
 ## What this is
