@@ -70,7 +70,7 @@ Visit `https://your-app.up.railway.app/setup`
 - Enter any username and your `SETUP_PASSWORD`
 - Wait for the status to show **DONE**
 - Copy the **Gateway Token** displayed on the page
-![Setup page showing DONE status](docs/images/setup-done.png)
+![Setup page showing DONE status](https://raw.githubusercontent.com/ReallyGreatTech/brightdata-railway/main/docs/images/setup-done.png)
 
 ### Step 2 — Open the OpenClaw UI
 Click the **Open OpenClaw UI** button on the setup page
@@ -80,7 +80,7 @@ Click the **Open OpenClaw UI** button on the setup page
 
 ### Step 3 — Start chatting
 Type a prompt and your agent will use Bright Data tools to fetch live web data.
-![OpenClaw UI dashboard](docs/images/openclaw-ui.png)
+![OpenClaw UI dashboard](https://raw.githubusercontent.com/ReallyGreatTech/brightdata-railway/main/docs/images/openclaw-ui.png)
 
 ---
 
