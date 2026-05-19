@@ -286,6 +286,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Redirect root to setup page
+  if (url === '/') { res.writeHead(302, { Location: '/setup' }); res.end(); return; }
+
   // Everything else → proxy to OpenClaw gateway
   proxy.web(req, res);
 });
