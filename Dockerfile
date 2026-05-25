@@ -45,7 +45,7 @@ RUN pnpm install --no-frozen-lockfile --prod
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 # Install OpenClaw globally (Cached)
-RUN npm install -g openclaw
+RUN npm install -g openclaw@2026.5.7
 
 # Pre-bake the plugin into a temp directory (Cached)
 # Build from source since plugin ships TypeScript only (v1.0.3)
